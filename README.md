@@ -1,1 +1,3 @@
-# DeepHPMs
+# Deep Hidden Physics Models
+
+Thanks for your interest. This work is currently under review for publication and the codes will be publicly available on-line as soon as the review process is over. In the meantime, the manuscript is written in such a way that a reimplementation is easily feasible. Hopefully we will hear back from the journal soon. Apologies for the wait ...
