@@ -41,7 +41,7 @@ def neural_net(X, weights, biases):
     for l in range(0,num_layers-2):
         W = weights[l]
         b = biases[l]
-        H = tf.tanh(tf.add(tf.matmul(H, W), b))
+        H = tf.sin(tf.add(tf.matmul(H, W), b))
     W = weights[-1]
     b = biases[-1]
     Y = tf.add(tf.matmul(H, W), b)
@@ -146,7 +146,7 @@ class DeepHPM:
     
     def idn_net_w(self, t, x, y):
         X = tf.concat([t,x,y],1)
-        H = 2*(X - self.lb)/(self.ub - self.lb) - 1
+        H = 2.0*(X - self.lb)/(self.ub - self.lb) - 1.0
         w = neural_net(H, self.w_weights, self.w_biases)
         return w
     
@@ -292,7 +292,7 @@ class DeepHPM:
     
     def sol_net_w(self, t, x, y):
         X = tf.concat([t,x,y],1)
-        H = 2*(X - self.lb)/(self.ub - self.lb) - 1
+        H = 2.0*(X - self.lb)/(self.ub - self.lb) - 1.0
         w = neural_net(H, self.w_weights, self.w_biases)
         return w
     

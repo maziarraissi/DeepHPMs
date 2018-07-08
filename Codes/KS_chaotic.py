@@ -359,15 +359,15 @@ class DeepHPM:
 if __name__ == "__main__": 
     
     # Doman bounds
-    lb_idn = np.array([0.0, -10.0])
-    ub_idn = np.array([50.0, 10.0])
+    lb_idn = np.array([0.0, 0.0])
+    ub_idn = np.array([100.0, 32.0*np.pi])
     
-    lb_sol = np.array([0.0, -10.0])
-    ub_sol = np.array([50.0, 10.0])
+    lb_sol = np.array([0.0, 0.0])
+    ub_sol = np.array([100.0, 32.0*np.pi])
     
     ### Load Data ###
     
-    data_idn = scipy.io.loadmat('../Data/KS.mat')
+    data_idn = scipy.io.loadmat('../Data/KS_chaotic.mat')
     
     t_idn = data_idn['t'].flatten()[:,None]
     x_idn = data_idn['x'].flatten()[:,None]
@@ -388,7 +388,7 @@ if __name__ == "__main__":
     
     #
     
-    data_sol = scipy.io.loadmat('../Data/KS.mat')
+    data_sol = scipy.io.loadmat('../Data/KS_chaotic.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
     x_sol = data_sol['x'].flatten()[:,None]

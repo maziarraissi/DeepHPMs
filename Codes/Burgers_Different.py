@@ -41,7 +41,7 @@ def neural_net(X, weights, biases):
     for l in range(0,num_layers-2):
         W = weights[l]
         b = biases[l]
-        H = tf.tanh(tf.add(tf.matmul(H, W), b))
+        H = tf.sin(tf.add(tf.matmul(H, W), b))
     W = weights[-1]
     b = biases[-1]
     Y = tf.add(tf.matmul(H, W), b)
@@ -144,7 +144,7 @@ class DeepHPM:
     
     def idn_net_u(self, t, x):
         X = tf.concat([t,x],1)
-        H = 2*(X - self.lb_idn)/(self.ub_idn - self.lb_idn) - 1
+        H = 2.0*(X - self.lb_idn)/(self.ub_idn - self.lb_idn) - 1.0
         u = neural_net(H, self.u_weights, self.u_biases)
         return u
     
@@ -292,7 +292,7 @@ class DeepHPM:
     
     def sol_net_u(self, t, x):
         X = tf.concat([t,x],1)
-        H = 2*(X - self.lb_sol)/(self.ub_sol - self.lb_sol) - 1
+        H = 2.0*(X - self.lb_sol)/(self.ub_sol - self.lb_sol) - 1.0
         u = neural_net(H, self.weights, self.biases)
         u_x = tf.gradients(u, x)[0]
         return u, u_x
@@ -494,4 +494,4 @@ if __name__ == "__main__":
     ax.set_ylabel('$x$')
     ax.set_title('Learned Dynamics', fontsize = 10)
     
-    # savefig('./figures/Burgers')
+    # savefig('../figures/Burgers_Extrapolate')

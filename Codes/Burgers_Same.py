@@ -26,12 +26,12 @@ def initialize_NN(layers):
         W = xavier_init(size=[layers[l], layers[l+1]])
         b = tf.Variable(tf.zeros([1,layers[l+1]], dtype=tf.float32), dtype=tf.float32)
         weights.append(W)
-        biases.append(b)        
+        biases.append(b)
     return weights, biases
     
 def xavier_init(size):
     in_dim = size[0]
-    out_dim = size[1]        
+    out_dim = size[1]
     xavier_stddev = np.sqrt(2/(in_dim + out_dim))
     return tf.Variable(tf.truncated_normal([in_dim, out_dim], stddev=xavier_stddev, dtype=tf.float32), dtype=tf.float32)
 
@@ -41,7 +41,7 @@ def neural_net(X, weights, biases):
     for l in range(0,num_layers-2):
         W = weights[l]
         b = biases[l]
-        H = tf.tanh(tf.add(tf.matmul(H, W), b))
+        H = tf.sin(tf.add(tf.matmul(H, W), b))
     W = weights[-1]
     b = biases[-1]
     Y = tf.add(tf.matmul(H, W), b)
@@ -71,13 +71,10 @@ class DeepHPM:
         
         # Init for Solution
         self.sol_init(x0, u0, tb, X_f, layers)
-            
+        
         # tf session
         self.sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
                                                      log_device_placement=True))
-        
-        
-        
         
         init = tf.global_variables_initializer()
         self.sess.run(init)
@@ -114,7 +111,7 @@ class DeepHPM:
         # loss for Identification
         self.idn_u_loss = tf.reduce_sum(tf.square(self.idn_u_pred - self.u_tf))
         self.idn_f_loss = tf.reduce_sum(tf.square(self.idn_f_pred))
-                        
+        
         # Optimizer for Identification
         self.idn_u_optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.idn_u_loss,
                                var_list = self.u_weights + self.u_biases,
@@ -144,7 +141,7 @@ class DeepHPM:
     
     def idn_net_u(self, t, x):
         X = tf.concat([t,x],1)
-        H = 2*(X - self.lb_idn)/(self.ub_idn - self.lb_idn) - 1
+        H = 2.0*(X - self.lb_idn)/(self.ub_idn - self.lb_idn) - 1.0
         u = neural_net(H, self.u_weights, self.u_biases)
         return u
     
@@ -292,7 +289,7 @@ class DeepHPM:
     
     def sol_net_u(self, t, x):
         X = tf.concat([t,x],1)
-        H = 2*(X - self.lb_sol)/(self.ub_sol - self.lb_sol) - 1
+        H = 2.0*(X - self.lb_sol)/(self.ub_sol - self.lb_sol) - 1.0
         u = neural_net(H, self.weights, self.biases)
         u_x = tf.gradients(u, x)[0]
         return u, u_x
@@ -334,9 +331,9 @@ class DeepHPM:
                       (it, loss_value, elapsed))
                 start_time = time.time()
                 
-        self.sol_optimizer.minimize(self.sess, 
-                                    feed_dict = tf_dict,         
-                                    fetches = [self.sol_loss], 
+        self.sol_optimizer.minimize(self.sess,
+                                    feed_dict = tf_dict,
+                                    fetches = [self.sol_loss],
                                     loss_callback = self.callback)
     
     def sol_predict(self, t_star, x_star):
@@ -504,4 +501,4 @@ if __name__ == "__main__":
     line = np.linspace(lb_sol[1], ub_sol[1], 2)[:,None]
     ax.plot(t_idn[index]*np.ones((2,1)), line, 'w-', linewidth = 1)
     
-    # savefig('./figures/Burgers')
+    # savefig('../figures/Burgers')

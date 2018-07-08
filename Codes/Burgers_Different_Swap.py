@@ -47,7 +47,6 @@ def neural_net(X, weights, biases):
     Y = tf.add(tf.matmul(H, W), b)
     return Y
 
-
 ###############################################################################
 ################################ DeepHPM Class ################################
 ###############################################################################
@@ -66,7 +65,7 @@ class DeepHPM:
         
         self.lb_sol = lb_sol
         self.ub_sol = ub_sol
-                
+        
         # Init for Identification
         self.idn_init(t, x, u, u_layers, pde_layers)
         
@@ -116,7 +115,7 @@ class DeepHPM:
         self.idn_u_loss = tf.reduce_sum(tf.square(self.idn_u_pred - self.u_tf))
         self.idn_f_loss = tf.reduce_sum(tf.square(self.idn_f_pred))
                         
-        # Optimizer for Identification        
+        # Optimizer for Identification
         self.idn_u_optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.idn_u_loss,
                                var_list = self.u_weights + self.u_biases,
                                method = 'L-BFGS-B',
@@ -125,7 +124,7 @@ class DeepHPM:
                                           'maxcor': 50,
                                           'maxls': 50,
                                           'ftol': 1.0*np.finfo(float).eps})
-
+    
         self.idn_f_optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.idn_f_loss,
                                var_list = self.pde_weights + self.pde_biases,
                                method = 'L-BFGS-B',
@@ -134,15 +133,14 @@ class DeepHPM:
                                           'maxcor': 50,
                                           'maxls': 50,
                                           'ftol': 1.0*np.finfo(float).eps})
-
-        
+    
         self.idn_u_optimizer_Adam = tf.train.AdamOptimizer()
         self.idn_u_train_op_Adam = self.idn_u_optimizer_Adam.minimize(self.idn_u_loss, 
                                    var_list = self.u_weights + self.u_biases)
-    
+        
         self.idn_f_optimizer_Adam = tf.train.AdamOptimizer()
         self.idn_f_train_op_Adam = self.idn_f_optimizer_Adam.minimize(self.idn_f_loss, 
-                                   var_list = self.pde_weights + self.pde_biases)
+                                   var_list = self.pde_weights + self.pde_biases)  
     
     def idn_net_u(self, t, x):
         X = tf.concat([t,x],1)
@@ -161,10 +159,9 @@ class DeepHPM:
         
         u_x = tf.gradients(u, x)[0]
         u_xx = tf.gradients(u_x, x)[0]
-        u_xxx = tf.gradients(u_xx, x)[0]
-        u_xxxx = tf.gradients(u_xxx, x)[0]
         
-        terms = tf.concat([u,u_x,u_xx,u_xxx,u_xxxx],1)
+        terms = tf.concat([u,u_x,u_xx],1)
+
         
         f = u_t - self.net_pde(terms)
         
@@ -190,7 +187,7 @@ class DeepHPM:
                                       feed_dict = tf_dict,
                                       fetches = [self.idn_u_loss],
                                       loss_callback = self.callback)
-        
+
     def idn_f_train(self, N_iter):
         tf_dict = {self.t_tf: self.t, self.x_tf: self.x}
         
@@ -251,10 +248,10 @@ class DeepHPM:
         self.u0 = u0 # Boundary Data
         
         # Layers for Solution
-        # self.layers = layers
+        self.layers = layers
         
         # Initialize NNs for Solution
-        # self.weights, self.biases = initialize_NN(layers)
+        self.weights, self.biases = initialize_NN(layers)
         
         # tf placeholders for Solution
         self.t0_tf = tf.placeholder(tf.float32, shape=[None, 1])
@@ -268,22 +265,20 @@ class DeepHPM:
         self.x_f_tf = tf.placeholder(tf.float32, shape=[None, 1])
         
         # tf graphs for Solution
-        self.u0_pred, _, _, _  = self.sol_net_u(self.t0_tf, self.x0_tf)
-        self.u_lb_pred, self.u_x_lb_pred, self.u_xx_lb_pred, self.u_xxx_lb_pred = self.sol_net_u(self.t_lb_tf, self.x_lb_tf)
-        self.u_ub_pred, self.u_x_ub_pred, self.u_xx_ub_pred, self.u_xxx_ub_pred = self.sol_net_u(self.t_ub_tf, self.x_ub_tf)
+        self.u0_pred, _  = self.sol_net_u(self.t0_tf, self.x0_tf)
+        self.u_lb_pred, self.u_x_lb_pred = self.sol_net_u(self.t_lb_tf, self.x_lb_tf)
+        self.u_ub_pred, self.u_x_ub_pred = self.sol_net_u(self.t_ub_tf, self.x_ub_tf)
         self.sol_f_pred = self.sol_net_f(self.t_f_tf, self.x_f_tf)
         
         # loss for Solution
-        self.sol_loss = tf.reduce_mean(tf.square(self.u0_tf - self.u0_pred)) + \
-                        tf.reduce_mean(tf.square(self.u_lb_pred - self.u_ub_pred)) + \
-                        tf.reduce_mean(tf.square(self.u_x_lb_pred - self.u_x_ub_pred)) + \
-                        tf.reduce_mean(tf.square(self.u_xx_lb_pred - self.u_xx_ub_pred)) + \
-                        tf.reduce_mean(tf.square(self.u_xxx_lb_pred - self.u_xxx_ub_pred)) + \
-                        tf.reduce_mean(tf.square(self.sol_f_pred))
+        self.sol_loss = tf.reduce_sum(tf.square(self.u0_tf - self.u0_pred)) + \
+                        tf.reduce_sum(tf.square(self.u_lb_pred - self.u_ub_pred)) + \
+                        tf.reduce_sum(tf.square(self.u_x_lb_pred - self.u_x_ub_pred)) + \
+                        tf.reduce_sum(tf.square(self.sol_f_pred))
         
         # Optimizer for Solution
         self.sol_optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.sol_loss,
-                             var_list = self.u_weights + self.u_biases,
+                             var_list = self.weights + self.biases,
                              method = 'L-BFGS-B',
                              options = {'maxiter': 50000,
                                         'maxfun': 50000,
@@ -293,27 +288,26 @@ class DeepHPM:
     
         self.sol_optimizer_Adam = tf.train.AdamOptimizer()
         self.sol_train_op_Adam = self.sol_optimizer_Adam.minimize(self.sol_loss,
-                                 var_list = self.u_weights + self.u_biases)
+                                 var_list = self.weights + self.biases)
     
     def sol_net_u(self, t, x):
         X = tf.concat([t,x],1)
         H = 2.0*(X - self.lb_sol)/(self.ub_sol - self.lb_sol) - 1.0
-        u = neural_net(H, self.u_weights, self.u_biases)
+        u = neural_net(H, self.weights, self.biases)
         u_x = tf.gradients(u, x)[0]
-        u_xx = tf.gradients(u_x, x)[0]
-        u_xxx = tf.gradients(u_xx, x)[0]
-        return u, u_x, u_xx, u_xxx
+        return u, u_x
     
     def sol_net_f(self, t, x):
-        u, u_x, u_xx, u_xxx = self.sol_net_u(t,x)
+        u, _ = self.sol_net_u(t,x)
         
         u_t = tf.gradients(u, t)[0]
         
-        u_xxxx = tf.gradients(u_xxx, x)[0]
+        u_x = tf.gradients(u, x)[0]
+        u_xx = tf.gradients(u_x, x)[0]
         
-        terms = tf.concat([u,u_x,u_xx,u_xxx,u_xxxx],1)
+        terms = tf.concat([u,u_x,u_xx],1)
         
-        f = u_t  - self.net_pde(terms)
+        f = u_t - self.net_pde(terms)
         
         return f
     
@@ -357,17 +351,17 @@ class DeepHPM:
 ###############################################################################
 
 if __name__ == "__main__": 
-    
+
     # Doman bounds
-    lb_idn = np.array([0.0, -10.0])
-    ub_idn = np.array([50.0, 10.0])
+    lb_idn = np.array([0.0, -8.0])
+    ub_idn = np.array([10.0, 8.0])
     
-    lb_sol = np.array([0.0, -10.0])
-    ub_sol = np.array([50.0, 10.0])
+    lb_sol = np.array([0.0, -8.0])
+    ub_sol = np.array([10.0, 8.0])
     
     ### Load Data ###
     
-    data_idn = scipy.io.loadmat('../Data/KS.mat')
+    data_idn = scipy.io.loadmat('../Data/burgers.mat')
     
     t_idn = data_idn['t'].flatten()[:,None]
     x_idn = data_idn['x'].flatten()[:,None]
@@ -375,7 +369,7 @@ if __name__ == "__main__":
     
     T_idn, X_idn = np.meshgrid(t_idn,x_idn)
     
-    keep = 1
+    keep = 2/3
     index = int(keep*t_idn.shape[0])
     T_idn = T_idn[:,0:index]
     X_idn = X_idn[:,0:index]
@@ -388,7 +382,7 @@ if __name__ == "__main__":
     
     #
     
-    data_sol = scipy.io.loadmat('../Data/KS.mat')
+    data_sol = scipy.io.loadmat('../Data/burgers_sine.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
     x_sol = data_sol['x'].flatten()[:,None]
@@ -430,7 +424,7 @@ if __name__ == "__main__":
         
     # Layers
     u_layers = [2, 50, 50, 50, 50, 1]
-    pde_layers = [5, 100, 100, 1]
+    pde_layers = [3, 100, 100, 1]
     
     layers = [2, 50, 50, 50, 50, 1]
     
@@ -459,12 +453,8 @@ if __name__ == "__main__":
         
     u_pred, f_pred = model.sol_predict(t_sol_star, x_sol_star)
     
-    u_pred_idn, f_pred_idn = model.sol_predict(t_idn_star, x_idn_star)
-    
     error_u = np.linalg.norm(u_sol_star-u_pred,2)/np.linalg.norm(u_sol_star,2)
-    error_u_idn = np.linalg.norm(u_idn_star-u_pred_idn,2)/np.linalg.norm(u_idn_star,2)
     print('Error u: %e' % (error_u))
-    print('Error u (idn): %e' % (error_u_idn))
 
     U_pred = griddata(X_sol_star, u_pred.flatten(), (T_sol, X_sol), method='cubic')    
     
@@ -504,36 +494,4 @@ if __name__ == "__main__":
     ax.set_ylabel('$x$')
     ax.set_title('Learned Dynamics', fontsize = 10)
     
-    # savefig('./figures/KS')
-    
-    
-    ######################################################################
-    ############################# Plotting ###############################
-    ######################################################################    
-    
-    lb_nasty = np.array([0.0, 0.0])
-    ub_nasty = np.array([100.0, 32.0*np.pi])
-    
-    data_nasty = scipy.io.loadmat('../Data/KS_chaotic.mat')
-    
-    Exact_nasty = np.real(data_nasty['usol'])
-    
-    fig, ax = newfig(1.0, 0.6)
-    ax.axis('off')
-    
-    ######## Row 2: Pressure #######################
-    ########      Predicted p(t,x,y)     ########### 
-    gs = gridspec.GridSpec(1, 2)
-    gs.update(top=0.9, bottom=0.2, left=0.3, right=0.7, wspace=0.5)
-    ax = plt.subplot(gs[:, :])
-    h = ax.imshow(Exact_nasty, interpolation='nearest', cmap='jet', 
-                  extent=[lb_nasty[0], ub_nasty[0], lb_nasty[1], ub_nasty[1]],
-                  origin='lower', aspect='auto')
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-
-    fig.colorbar(h, cax=cax)
-    ax.set_xlabel('$t$')
-    ax.set_ylabel('$x$')
-    
-    # savefig('./figures/KS_nasty', crop = False)
+    # savefig('../figures/Burgers_fail')
