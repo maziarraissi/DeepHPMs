@@ -386,8 +386,6 @@ if __name__ == "__main__":
     X_idn_star = np.hstack((t_idn_star, x_idn_star))
     u_idn_star = Exact_idn.flatten()[:,None]
     
-    #
-    
     data_sol = scipy.io.loadmat('../Data/KS_chaotic.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
@@ -536,4 +534,4 @@ if __name__ == "__main__":
     ax.set_xlabel('$t$')
     ax.set_ylabel('$x$')
     
-    # savefig('./figures/KS_nasty', crop = False)
+    # savefig('../figures/KS_nasty', crop = False)

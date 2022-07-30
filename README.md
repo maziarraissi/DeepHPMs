@@ -6,6 +6,22 @@ For more information, please refer to the following: (https://maziarraissi.githu
 
   - Raissi, Maziar. "[Deep Hidden Physics Models: Deep Learning of Nonlinear Partial Differential Equations](https://arxiv.org/abs/1801.06637)." arXiv preprint arXiv:1801.06637 (2018).
 
+## Installation Requirements
+```
+pip         21.2.2
+python      3.6.12
+matplotlib  3.3.4
+numpy       1.19.2
+pyDOE       0.3.8
+scipy       1.5.2
+tensorflow  1.14.0
+textlive    2022
+```
+
+Note:
+* To install older versions of tensorflow and python, one can use [Anaconda](https://anaconda.org/).
+* When installing [TensorFlow](https://www.tensorflow.org), make sure you have the correct versions of GCC and Bazel installed (for GPU support also install the correct versions of cuDNN and CUDA). The supported build tools can be found [here](https://www.tensorflow.org/install/source#tested_build_configurations).
+
 ## Citation
 
     @article{raissi2018deep,
