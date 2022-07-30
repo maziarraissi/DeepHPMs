@@ -422,8 +422,6 @@ if __name__ == "__main__":
     u_idn_star = Exact_u_idn.flatten()[:,None]
     v_idn_star = Exact_v_idn.flatten()[:,None]
     
-    #
-    
     data_sol = scipy.io.loadmat('../Data/NLS.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
@@ -560,4 +558,4 @@ if __name__ == "__main__":
     ax.set_ylabel('$x$')
     ax.set_title('Learned Dynamics', fontsize = 10)
     
-    # savefig('./figures/NLS')
+    # savefig('../figures/NLS')

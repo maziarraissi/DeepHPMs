@@ -382,8 +382,6 @@ if __name__ == "__main__":
     X_idn_star = np.hstack((t_idn_star, x_idn_star))
     u_idn_star = Exact_idn.flatten()[:,None]
     
-    #
-    
     data_sol = scipy.io.loadmat('../Data/KdV_sine.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
@@ -508,4 +506,4 @@ if __name__ == "__main__":
     line = np.linspace(lb_sol[1], ub_sol[1], 2)[:,None]
     ax.plot(t_idn[index]*np.ones((2,1)), line, 'w-', linewidth = 1)
     
-    # savefig('./figures/KdV_Extrapolate')
+    # savefig('../figures/KdV_Extrapolate')

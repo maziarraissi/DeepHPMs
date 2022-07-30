@@ -377,8 +377,6 @@ if __name__ == "__main__":
     X_idn_star = np.hstack((t_idn_star, x_idn_star))
     u_idn_star = Exact_idn.flatten()[:,None]
     
-    #
-    
     data_sol = scipy.io.loadmat('../Data/burgers_sine.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]

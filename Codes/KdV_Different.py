@@ -382,8 +382,6 @@ if __name__ == "__main__":
     X_idn_star = np.hstack((t_idn_star, x_idn_star))
     u_idn_star = Exact_idn.flatten()[:,None]
     
-    #
-    
     data_sol = scipy.io.loadmat('../Data/KdV_cos.mat')
     
     t_sol = data_sol['t'].flatten()[:,None]
@@ -498,4 +496,4 @@ if __name__ == "__main__":
     #ax.set_aspect('equal', 'box')
     ax.set_title('Learned Dynamics', fontsize = 10)
     
-    # savefig('./figures/KdV_Extrapolate')
+    # savefig('../figures/KdV_Extrapolate')

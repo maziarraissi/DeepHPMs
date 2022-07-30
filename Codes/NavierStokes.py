@@ -578,4 +578,4 @@ if __name__ == "__main__":
     ax.plot([x_star.min(), x_star.min()], [y_star.min(), y_star.max()],'r--')
     ax.plot([x_star.max(), x_star.max()], [y_star.min(), y_star.max()],'r--')
 
-    # savefig('./figures/Cylinder_vorticity', crop = False)
+    # savefig('../figures/Cylinder_vorticity', crop = False)
